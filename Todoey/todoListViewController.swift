@@ -9,12 +9,20 @@
 import UIKit
 
 class todoListViewController: UITableViewController {
+    
+    let defaults = UserDefaults.standard
 
     var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        
+        //This is going to load data saved to the device or persistent data
+        if let items = defaults.array(forKey: "ToDoListArray") as? [String] { // allows first run when this doesn't exist yet
+            itemArray = items
+        }
+        
     }
     
     
@@ -62,6 +70,9 @@ class todoListViewController: UITableViewController {
             
             if (textField.text! != "") {
                 self.itemArray.append(textField.text!)
+                
+                self.defaults.set(self.itemArray, forKey: "ToDoListArray")//This saves data to the app sandbox
+                
                 self.tableView.reloadData()
             }
 //            //print(textField.text!)
