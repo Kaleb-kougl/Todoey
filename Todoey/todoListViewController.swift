@@ -64,7 +64,7 @@ class todoListViewController: UITableViewController {
                 self.itemArray.append(textField.text!)
                 self.tableView.reloadData()
             }
-//            print(textField.text!)
+//            //print(textField.text!)
             
         }
         
