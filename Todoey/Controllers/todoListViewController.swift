@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class todoListViewController: UITableViewController {
     
@@ -14,27 +15,15 @@ class todoListViewController: UITableViewController {
 
     var itemArray : [Item] = []
     
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+    //UiAppplication, singleton access through shared, accessing delegate, casting
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Kill Demogorgan"
-        itemArray.append(newItem3)
-
-        
-        
-        //This is going to load data saved to the device or persistent data
-        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] { // allows first run when this doesn't exist yet
-            itemArray = items
-        }
+//        loadItems()
         
     }
     
@@ -68,6 +57,8 @@ class todoListViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
+        self.saveItems()
+        
         self.tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -86,15 +77,17 @@ class todoListViewController: UITableViewController {
             
             //what will happen when the user clicks the add item button on uialert
             if (textField.text! != "") {
-                let newItem = Item()
+                
+                
+                let newItem = Item(context: self.context)
                 
                 newItem.title = textField.text!
+                newItem.done = false
                 
                 self.itemArray.append(newItem)
                 
-                self.defaults.set(self.itemArray, forKey: "ToDoListArray")//This saves data to the app sandbox
+                self.saveItems()
                 
-                self.tableView.reloadData()
             }
         }
         
@@ -111,5 +104,32 @@ class todoListViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
+    
+    func saveItems() {
+        
+        do {
+            try context.save()
+        } catch {
+            print("Error saving context \(error)")
+        }
+        
+        
+        self.tableView.reloadData()
+        
+    }
+    
+//    func loadItems() {
+//        let decoder = PropertyListDecoder()
+//        if let data = try? Data(contentsOf: dataFilePath!) { //try? because throws errror
+//            //optional binding to unwrap safetly
+//            let decoder = PropertyListDecoder()
+//            do {
+//            itemArray = try decoder.decode([Item].self, from: data)
+//            } catch {
+//                print ("Error decoding item array, \(error)")
+//            }
+//        }
+//
+//    }
 }
 
